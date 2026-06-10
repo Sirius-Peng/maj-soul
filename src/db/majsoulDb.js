@@ -115,6 +115,26 @@ INSERT INTO errors(
     this.stmtListKeyframesByTime = this.db.prepare(
       'SELECT * FROM keyframes WHERE captured_at >= $start AND captured_at <= $end ORDER BY captured_at ASC, keyframe_id ASC',
     );
+
+    this.stmtInsertWsFrame = this.db.prepare(`
+INSERT INTO ws_frames(
+  session_id, captured_at, direction, url, opcode, payload_base64, created_at
+) VALUES (
+  $session_id, $captured_at, $direction, $url, $opcode, $payload_base64, $created_at
+)
+`.trim());
+
+    this.stmtInsertLiqiEvent = this.db.prepare(`
+INSERT INTO liqi_events(
+  session_id, frame_id, captured_at, msg_type, method, step, action_name, data_json, created_at
+) VALUES (
+  $session_id, $frame_id, $captured_at, $msg_type, $method, $step, $action_name, $data_json, $created_at
+)
+`.trim());
+
+    this.stmtSelectLiqiEvents = this.db.prepare(
+      'SELECT * FROM liqi_events WHERE session_id = $session_id ORDER BY captured_at ASC, event_id ASC',
+    );
   }
 
   upsertSession(meta) {
@@ -173,6 +193,43 @@ INSERT INTO errors(
       detail_json: safeJsonStringify(detail),
       created_at: nowIso(),
     });
+  }
+
+  insertWsFrame({ sessionId, capturedAt, direction, url = null, opcode, payloadBase64 }) {
+    const info = this.stmtInsertWsFrame.run({
+      session_id: sessionId,
+      captured_at: capturedAt,
+      direction,
+      url,
+      opcode,
+      payload_base64: payloadBase64,
+      created_at: nowIso(),
+    });
+    return info.lastInsertRowid;
+  }
+
+  insertLiqiEvent({
+    sessionId,
+    frameId = null,
+    capturedAt,
+    msgType,
+    method = null,
+    step = null,
+    actionName = null,
+    data = undefined,
+  }) {
+    const info = this.stmtInsertLiqiEvent.run({
+      session_id: sessionId,
+      frame_id: frameId,
+      captured_at: capturedAt,
+      msg_type: msgType,
+      method,
+      step,
+      action_name: actionName,
+      data_json: safeJsonStringify(data),
+      created_at: nowIso(),
+    });
+    return info.lastInsertRowid;
   }
 
   getSession(sessionId) {
@@ -276,6 +333,22 @@ INSERT INTO errors(
       stage: r.stage,
       message: r.message,
       detail: safeJsonParse(r.detail_json),
+      createdAt: r.created_at,
+    }));
+  }
+
+  getLiqiEvents(sessionId) {
+    const rows = this.stmtSelectLiqiEvents.all({ session_id: sessionId });
+    return rows.map((r) => ({
+      eventId: r.event_id,
+      sessionId: r.session_id,
+      frameId: r.frame_id,
+      capturedAt: r.captured_at,
+      msgType: r.msg_type,
+      method: r.method,
+      step: r.step,
+      actionName: r.action_name,
+      data: safeJsonParse(r.data_json),
       createdAt: r.created_at,
     }));
   }

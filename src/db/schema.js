@@ -1,4 +1,4 @@
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 function getSchemaSql() {
   return `
@@ -68,6 +68,34 @@ CREATE TABLE IF NOT EXISTS errors (
 );
 
 CREATE INDEX IF NOT EXISTS idx_errors_session_time ON errors(session_id, occurred_at);
+
+CREATE TABLE IF NOT EXISTS ws_frames (
+  frame_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  captured_at TEXT NOT NULL,
+  direction TEXT NOT NULL,
+  url TEXT,
+  opcode INTEGER NOT NULL,
+  payload_base64 TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ws_frames_session_time ON ws_frames(session_id, captured_at);
+
+CREATE TABLE IF NOT EXISTS liqi_events (
+  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  frame_id INTEGER REFERENCES ws_frames(frame_id) ON DELETE SET NULL,
+  captured_at TEXT NOT NULL,
+  msg_type TEXT NOT NULL,
+  method TEXT,
+  step INTEGER,
+  action_name TEXT,
+  data_json TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_liqi_events_session_time ON liqi_events(session_id, captured_at);
 `.trim();
 }
 
@@ -75,4 +103,3 @@ module.exports = {
   SCHEMA_VERSION,
   getSchemaSql,
 };
-
