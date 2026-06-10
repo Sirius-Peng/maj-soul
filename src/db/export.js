@@ -1,19 +1,35 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-function buildSessionDocument({ session, games, keyframes, errors }) {
+function getExportEventsMax() {
+  const raw = String(process.env.MAJSOUL_EXPORT_EVENTS_MAX ?? '').trim();
+  if (!raw) return 0;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.floor(n);
+}
+
+function buildSessionDocument({ session, games, keyframes, errors, events }) {
   const meta = session ?? null;
+  const maxEvents = getExportEventsMax();
+  const exportedEvents = Array.isArray(events)
+    ? maxEvents > 0
+      ? events.slice(Math.max(0, events.length - maxEvents))
+      : events
+    : [];
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: new Date().toISOString(),
     meta,
     games: games ?? [],
     keyframes: keyframes ?? [],
     errors: errors ?? [],
+    events: exportedEvents,
     stats: {
       gameCount: Array.isArray(games) ? games.length : 0,
       keyframeCount: Array.isArray(keyframes) ? keyframes.length : 0,
       errorCount: Array.isArray(errors) ? errors.length : 0,
+      eventCount: exportedEvents.length,
     },
   };
 }
@@ -28,12 +44,14 @@ async function exportSessionJson({ db, sessionId, outPath }) {
   const games = db.getGames(sessionId);
   const keyframes = db.getKeyframes(sessionId);
   const errors = db.getErrors(sessionId);
+  const events = db.getLiqiEvents(sessionId);
 
   const doc = buildSessionDocument({
     session,
     games,
     keyframes,
     errors,
+    events,
   });
 
   await writeJsonPretty(outPath, doc);
@@ -103,4 +121,3 @@ module.exports = {
   exportKeyframesCsvString,
   exportSessionJson,
 };
-

@@ -47,14 +47,34 @@ test('SQLite: exportSessionJson/exportKeyframesCsv: roundtrip basic fields', asy
       detail: { x: 1 },
     });
 
+    const frameId = db.insertWsFrame({
+      sessionId: meta.sessionId,
+      capturedAt: '2026-06-10T01:02:06.000Z',
+      direction: 'recv',
+      url: 'wss://example.invalid/',
+      opcode: 2,
+      payloadBase64: Buffer.from([1, 2, 3]).toString('base64'),
+    });
+    db.insertLiqiEvent({
+      sessionId: meta.sessionId,
+      frameId,
+      capturedAt: '2026-06-10T01:02:06.000Z',
+      msgType: 'notify',
+      method: '.lq.ActionPrototype',
+      step: 1,
+      actionName: 'ActionMJStart',
+      data: { ok: true },
+    });
+
     const sessionJsonPath = path.join(sessionDir, 'session.json');
     await exportSessionJson({ db, sessionId: meta.sessionId, outPath: sessionJsonPath });
     const doc = await readSessionDocument(sessionJsonPath);
 
-    assert.equal(doc.schemaVersion, 1);
+    assert.equal(doc.schemaVersion, 2);
     assert.equal(doc.meta.sessionId, meta.sessionId);
     assert.equal(doc.keyframes.length, 1);
     assert.equal(doc.errors.length, 1);
+    assert.equal(doc.events.length, 1);
     assert.equal(doc.keyframes[0].fileRelpath, rel);
 
     const csv = exportKeyframesCsvString({ db, sessionId: meta.sessionId });

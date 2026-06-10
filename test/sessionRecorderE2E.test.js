@@ -77,10 +77,11 @@ test('SessionRecorderCore: end-to-end writes session dir, SQLite rows, and expor
     assert.ok(keyframeFiles.length >= 1);
 
     const doc = await readSessionDocument(path.join(sessionDir, 'session.json'));
-    assert.equal(doc.schemaVersion, 1);
+    assert.equal(doc.schemaVersion, 2);
     assert.equal(doc.meta.sessionId, sessionId);
     assert.ok(doc.meta.endedAt);
     assert.ok(doc.keyframes.length >= 1);
+    assert.ok(Array.isArray(doc.events));
     assert.equal(doc.stats.keyframeCount, doc.keyframes.length);
   } finally {
     await core.stop();
