@@ -63,7 +63,7 @@ test('LauncherWindow: builds desktop control panel window options with hardened 
   assert.equal(opts.show, false);
   assert.equal(opts.webPreferences.preload, '/tmp/launcher-preload.js');
   assert.equal(opts.webPreferences.contextIsolation, true);
-  assert.equal(opts.webPreferences.sandbox, false);
+  assert.equal(opts.webPreferences.sandbox, true);
   assert.equal(opts.webPreferences.nodeIntegration, false);
 });
 

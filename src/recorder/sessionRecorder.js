@@ -83,6 +83,10 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl, configSnapsh
     },
   });
 
+  if (adviceServices?.coordinator && typeof adviceServices.coordinator.setDb === 'function') {
+    adviceServices.coordinator.setDb(core.db);
+  }
+
   tap = new CdpWebSocketTap({
     webContents,
     db: core.db,

@@ -1,6 +1,11 @@
 function createAdviceCoordinator({ client, onUpdate = () => {}, db = null }) {
   const completed = new Set();
   let currentTurnId = null;
+  let runtimeDb = db;
+
+  function setDb(nextDb) {
+    runtimeDb = nextDb;
+  }
 
   async function handleDecisionFrame(frame) {
     if (!frame || !frame.turnId) return null;
@@ -14,8 +19,8 @@ function createAdviceCoordinator({ client, onUpdate = () => {}, db = null }) {
     });
 
     const requestId =
-      db && typeof db.insertAdviceRequest === 'function'
-        ? db.insertAdviceRequest({
+      runtimeDb && typeof runtimeDb.insertAdviceRequest === 'function'
+        ? runtimeDb.insertAdviceRequest({
             sessionId: frame.sessionId ?? 'unknown',
             turnId: frame.turnId,
             provider: 'deepseek',
@@ -28,8 +33,8 @@ function createAdviceCoordinator({ client, onUpdate = () => {}, db = null }) {
       const result = await client.requestAdvice(frame);
       completed.add(frame.turnId);
 
-      if (db && typeof db.insertAdviceResult === 'function') {
-        db.insertAdviceResult({
+      if (runtimeDb && typeof runtimeDb.insertAdviceResult === 'function') {
+        runtimeDb.insertAdviceResult({
           sessionId: frame.sessionId ?? 'unknown',
           turnId: frame.turnId,
           requestId,
@@ -51,8 +56,8 @@ function createAdviceCoordinator({ client, onUpdate = () => {}, db = null }) {
         message: error instanceof Error ? error.message : String(error),
       };
 
-      if (db && typeof db.insertAdviceResult === 'function') {
-        db.insertAdviceResult({
+      if (runtimeDb && typeof runtimeDb.insertAdviceResult === 'function') {
+        runtimeDb.insertAdviceResult({
           sessionId: frame.sessionId ?? 'unknown',
           turnId: frame.turnId,
           requestId,
@@ -74,10 +79,10 @@ function createAdviceCoordinator({ client, onUpdate = () => {}, db = null }) {
 
   return {
     handleDecisionFrame,
+    setDb,
   };
 }
 
 module.exports = {
   createAdviceCoordinator,
 };
-

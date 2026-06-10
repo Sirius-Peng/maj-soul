@@ -4,10 +4,10 @@ const path = require('node:path');
 function normalizeEntry(e) {
   if (!e || typeof e.id !== 'string' || !Array.isArray(e.rgba) || e.rgba.length < 3) return null;
   const rgba = [
-    Number(e.rgba[0]) || 0,
-    Number(e.rgba[1]) || 0,
-    Number(e.rgba[2]) || 0,
-    Number(e.rgba[3] ?? 255) || 255,
+    Number.isFinite(Number(e.rgba[0])) ? Number(e.rgba[0]) : 0,
+    Number.isFinite(Number(e.rgba[1])) ? Number(e.rgba[1]) : 0,
+    Number.isFinite(Number(e.rgba[2])) ? Number(e.rgba[2]) : 0,
+    Number.isFinite(Number(e.rgba[3])) ? Number(e.rgba[3]) : 255,
   ];
   return { id: e.id, rgba };
 }
@@ -57,4 +57,3 @@ async function loadTemplateBankFromDir(dir) {
 module.exports = {
   loadTemplateBankFromDir,
 };
-

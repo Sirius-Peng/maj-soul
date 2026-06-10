@@ -28,3 +28,7 @@
 - README 重写：把文档从开发者说明扩展为面向公开仓库读者的正式项目文档，补齐项目定位、架构、命令、FAQ、边界与路线图
 - 工程验证：执行 `npm run check` 与 `npm run smoke:launcher` 均通过
 - Copilot 调用阻塞：尝试通过 `gh copilot` 执行 review，但当前环境在下载 Copilot CLI 校验文件时发生网络超时，尚未获得 review 结果
+- PR/Copilot review 修复：根据 PR #1 中 Copilot 的 review 意见修正模板 alpha=0 被强制改写的问题、非法 MAD 阈值未回退默认值的问题、识别 helper 返回形状不一致的问题
+- PR/Copilot review 修复：把启动器窗口与悬浮窗的 Electron `sandbox` 改为 `true`，与主窗口安全默认值保持一致
+- PR/Copilot review 修复：为 Advice Coordinator 增加运行时 `setDb()` 接口，并在 `sessionRecorder` 中把 `core.db` 挂接给建议链路，确保真实运行时会持久化 `advice_requests/advice_results`
+- PR/Copilot review 验证：执行定向测试 `node --test test/templateBank.test.js test/visionRecognizeFrame.test.js test/launcherWindow.test.js test/overlayWindow.test.js test/adviceCoordinator.test.js test/sessionRecorderAdvice.test.js`（12/12 通过）、`npm test`（56/56 通过）和 `npm run smoke:launcher`（退出码 0）

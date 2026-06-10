@@ -10,6 +10,7 @@ test('OverlayWindow: builds transparent always-on-top options', () => {
   assert.equal(opts.alwaysOnTop, true);
   assert.equal(opts.frame, false);
   assert.equal(opts.webPreferences.preload, '/tmp/preload.js');
+  assert.equal(opts.webPreferences.sandbox, true);
 });
 
 test('LauncherWindow: builds restrained desktop control panel options', () => {

@@ -30,6 +30,14 @@ function isEmptyPatch(mean) {
   return mean.r + mean.g + mean.b <= 10;
 }
 
+function normalizeThreshold(rawValue, fallback) {
+  const value = Number(rawValue);
+  if (!Number.isFinite(value) || value < 0) {
+    return fallback;
+  }
+  return value;
+}
+
 function matchSolidTemplates({ mean, templates, threshold }) {
   if (!Array.isArray(templates) || templates.length === 0) {
     return { id: 'unknown', score: Infinity, reason: 'no_templates' };
@@ -52,7 +60,9 @@ function matchSolidTemplates({ mean, templates, threshold }) {
 }
 
 function recognizeSlotsWithDetails({ bitmap, width, height, rect, slots, templates, threshold }) {
-  if (!rect || rect.width <= 0 || rect.height <= 0 || !Number.isFinite(slots) || slots <= 0) return [];
+  if (!rect || rect.width <= 0 || rect.height <= 0 || !Number.isFinite(slots) || slots <= 0) {
+    return { tiles: [], details: [] };
+  }
   const details = [];
   const tiles = [];
   const slotW = Math.floor(rect.width / slots);
@@ -73,7 +83,9 @@ function recognizeSlotsWithDetails({ bitmap, width, height, rect, slots, templat
 }
 
 function recognizeRiverGridWithDetails({ bitmap, width, height, rect, cols, rows, templates, threshold }) {
-  if (!rect || rect.width <= 0 || rect.height <= 0 || cols <= 0 || rows <= 0) return [];
+  if (!rect || rect.width <= 0 || rect.height <= 0 || cols <= 0 || rows <= 0) {
+    return { tiles: [], details: [] };
+  }
   const details = [];
   const tiles = [];
   const cellW = Math.floor(rect.width / cols);
@@ -143,8 +155,8 @@ function recognizeFrame({ bitmap, width, height, bank, layout }) {
   const h = normalized.height;
   const b = normalized.bitmap;
 
-  const tileThreshold = Number(process.env.MAJSOUL_TILE_MAD_THRESHOLD ?? 25);
-  const digitThreshold = Number(process.env.MAJSOUL_DIGIT_MAD_THRESHOLD ?? 25);
+  const tileThreshold = normalizeThreshold(process.env.MAJSOUL_TILE_MAD_THRESHOLD ?? 25, 25);
+  const digitThreshold = normalizeThreshold(process.env.MAJSOUL_DIGIT_MAD_THRESHOLD ?? 25, 25);
 
   const hand = recognizeSlotsWithDetails({
     bitmap: b,
@@ -242,4 +254,8 @@ function recognizeFrame({ bitmap, width, height, bank, layout }) {
 
 module.exports = {
   recognizeFrame,
+  __internals: {
+    recognizeRiverGridWithDetails,
+    recognizeSlotsWithDetails,
+  },
 };

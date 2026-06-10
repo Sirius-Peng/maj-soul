@@ -15,7 +15,7 @@ function getOverlayWindowOptions(preloadPath) {
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
     },
   };
 }
