@@ -24,3 +24,7 @@
 - 启动级验证更新：修复失效的 `scripts/smoke.js`，新增 `npm run smoke:launcher` 走真实 `electron .` 入口，并输出 `artifacts/smoke/launcher-start.json` 验证“启动器 -> 启动雀魂”路径
 - Task 4 文档同步：更新 README，明确图形化启动器的默认入口、配置持久化与环境变量覆盖优先级、以及新的启动级验证命令
 - Task 4 验证：执行 `npm test -- test/config.test.js test/launcherController.test.js test/launcherWindow.test.js test/launcherSmoke.test.js`（18/18 通过）、`npm run smoke:launcher`（退出码 0，`launcher-start.json` 显示 `phase=running`）、`npm test`（51/51 通过）
+- 工程治理强化：补充 `package.json` 仓库元数据与 `check/ci:check` 脚本，新增 `.editorconfig` 与最小 GitHub Actions CI 工作流
+- README 重写：把文档从开发者说明扩展为面向公开仓库读者的正式项目文档，补齐项目定位、架构、命令、FAQ、边界与路线图
+- 工程验证：执行 `npm run check` 与 `npm run smoke:launcher` 均通过
+- Copilot 调用阻塞：尝试通过 `gh copilot` 执行 review，但当前环境在下载 Copilot CLI 校验文件时发生网络超时，尚未获得 review 结果
