@@ -13,7 +13,11 @@
     "test": "node --test",
     "test:ci": "node --test",
     "check": "npm test",
-    "ci:check": "npm test"
+    "ci:check": "npm test",
+    "dist": "electron-builder --publish never --config electron-builder.yml",
+    "dist:mac": "electron-builder --mac --publish never --config electron-builder.yml",
+    "dist:win": "electron-builder --win --publish never --config electron-builder.yml",
+    "release:dry-run": "electron-builder --publish never --config electron-builder.yml"
   },
   "repository": {
     "type": "git",
@@ -26,11 +30,15 @@
   "engines": {
     "node": ">=22"
   },
+  "build": {
+    "extends": null
+  },
   "dependencies": {
-    "electron": "^36.0.0",
     "protobufjs": "^7.4.0"
   },
   "devDependencies": {
+    "electron": "^36.0.0",
+    "electron-builder": "^24.13.3",
     "pngjs": "^7.0.0"
   }
 }
