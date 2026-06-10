@@ -1,0 +1,20 @@
+{
+  "name": "maj-soul-review-assistant",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "bench": "node scripts/bench.js",
+    "smoke": "electron scripts/smoke-electron.js",
+    "test": "node --test",
+    "test:ci": "node --test"
+  },
+  "dependencies": {
+    "electron": "^36.0.0"
+  },
+  "devDependencies": {
+    "pngjs": "^7.0.0"
+  }
+}

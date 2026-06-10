@@ -1,0 +1,101 @@
+const path = require('node:path');
+
+const { probeMajsoulState } = require('./probeMajsoulState');
+const { getPlatformTag } = require('../session/sessionPaths');
+const { createSessionRecorderCore } = require('./sessionRecorderCore');
+const { getDefaultLayout } = require('../vision/defaultLayout');
+const { loadTemplateBankFromDir } = require('../vision/templateBank');
+
+function getCaptureIntervalMs() {
+  const n = Number(process.env.MAJSOUL_CAPTURE_INTERVAL_MS ?? 800);
+  if (!Number.isFinite(n) || n <= 0) return 800;
+  return n;
+}
+
+function getKeyframeThreshold() {
+  const n = Number(process.env.MAJSOUL_KEYFRAME_THRESHOLD ?? 12);
+  if (!Number.isFinite(n) || n < 0) return 12;
+  return n;
+}
+
+function shouldCaptureAllFrames() {
+  return String(process.env.MAJSOUL_CAPTURE_ALL_FRAMES ?? '').trim() === '1';
+}
+
+function getSessionsBaseDir({ userDataDir }) {
+  const env = String(process.env.MAJSOUL_SESSIONS_DIR ?? '').trim();
+  if (env) return env;
+  return path.join(userDataDir, 'data');
+}
+
+async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
+  const webContents = win.webContents;
+  let busy = false;
+
+  const intervalMs = getCaptureIntervalMs();
+  const threshold = getKeyframeThreshold();
+  const captureAll = shouldCaptureAllFrames();
+  const baseDir = getSessionsBaseDir({ userDataDir });
+
+  const shouldExportCsv = String(process.env.MAJSOUL_EXPORT_CSV ?? '').trim() === '1';
+  const visionLayout = getDefaultLayout();
+  const templatesDir = String(process.env.MAJSOUL_TEMPLATES_DIR ?? '').trim();
+  const templateBank = await loadTemplateBankFromDir(templatesDir);
+  const platformTag = getPlatformTag(process.platform);
+
+  const core = await createSessionRecorderCore({
+    baseDir,
+    majsoulUrl,
+    platformTag,
+    window: () => {
+      const bounds = win.getBounds();
+      return { width: bounds.width, height: bounds.height };
+    },
+    captureAllFrames: captureAll,
+    keyframeThreshold: threshold,
+    shouldExportCsv,
+    templateBank,
+    visionLayout,
+    deps: {
+      now: () => new Date(),
+      capture: async () => {
+        const img = await webContents.capturePage();
+        const size = img.getSize();
+        return {
+          width: size.width,
+          height: size.height,
+          bitmap: img.toBitmap(),
+          png: img.toPNG(),
+        };
+      },
+      probe: async () => probeMajsoulState(webContents),
+    },
+  });
+
+  const timer = setInterval(async () => {
+    if (busy) return;
+    busy = true;
+    try {
+      await core.tick();
+    } catch {
+    } finally {
+      busy = false;
+    }
+  }, intervalMs);
+
+  win.on('closed', () => {
+    clearInterval(timer);
+    core.stop().catch(() => {});
+  });
+
+  return {
+    stop: async () => {
+      clearInterval(timer);
+      await core.stop();
+    },
+  };
+}
+
+module.exports = {
+  startSessionRecorder,
+};
