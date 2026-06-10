@@ -135,6 +135,34 @@ INSERT INTO liqi_events(
     this.stmtSelectLiqiEvents = this.db.prepare(
       'SELECT * FROM liqi_events WHERE session_id = $session_id ORDER BY captured_at ASC, event_id ASC',
     );
+
+    this.stmtInsertDecisionFrame = this.db.prepare(`
+INSERT INTO decision_frames(
+  session_id, turn_id, operation_type, payload_json, created_at
+) VALUES (
+  $session_id, $turn_id, $operation_type, $payload_json, $created_at
+)
+`.trim());
+
+    this.stmtInsertAdviceRequest = this.db.prepare(`
+INSERT INTO advice_requests(
+  session_id, turn_id, provider, model, request_payload_json, status, created_at
+) VALUES (
+  $session_id, $turn_id, $provider, $model, $request_payload_json, $status, $created_at
+)
+`.trim());
+
+    this.stmtInsertAdviceResult = this.db.prepare(`
+INSERT INTO advice_results(
+  session_id, turn_id, request_id, status, result_json, error_json, created_at
+) VALUES (
+  $session_id, $turn_id, $request_id, $status, $result_json, $error_json, $created_at
+)
+`.trim());
+
+    this.stmtSelectAdviceResults = this.db.prepare(
+      'SELECT * FROM advice_results WHERE session_id = $session_id ORDER BY created_at ASC, result_id ASC',
+    );
   }
 
   upsertSession(meta) {
@@ -227,6 +255,43 @@ INSERT INTO liqi_events(
       step,
       action_name: actionName,
       data_json: safeJsonStringify(data),
+      created_at: nowIso(),
+    });
+    return info.lastInsertRowid;
+  }
+
+  insertDecisionFrame({ sessionId, turnId, operationType, payload }) {
+    const info = this.stmtInsertDecisionFrame.run({
+      session_id: sessionId,
+      turn_id: turnId,
+      operation_type: operationType,
+      payload_json: safeJsonStringify(payload),
+      created_at: nowIso(),
+    });
+    return info.lastInsertRowid;
+  }
+
+  insertAdviceRequest({ sessionId, turnId, provider, model, requestPayload, status = 'pending' }) {
+    const info = this.stmtInsertAdviceRequest.run({
+      session_id: sessionId,
+      turn_id: turnId,
+      provider,
+      model,
+      request_payload_json: safeJsonStringify(requestPayload),
+      status,
+      created_at: nowIso(),
+    });
+    return info.lastInsertRowid;
+  }
+
+  insertAdviceResult({ sessionId, turnId, requestId = null, status, result = undefined, error = undefined }) {
+    const info = this.stmtInsertAdviceResult.run({
+      session_id: sessionId,
+      turn_id: turnId,
+      request_id: requestId,
+      status,
+      result_json: safeJsonStringify(result),
+      error_json: safeJsonStringify(error),
       created_at: nowIso(),
     });
     return info.lastInsertRowid;
@@ -349,6 +414,20 @@ INSERT INTO liqi_events(
       step: r.step,
       actionName: r.action_name,
       data: safeJsonParse(r.data_json),
+      createdAt: r.created_at,
+    }));
+  }
+
+  getAdviceResults(sessionId) {
+    const rows = this.stmtSelectAdviceResults.all({ session_id: sessionId });
+    return rows.map((r) => ({
+      resultId: r.result_id,
+      sessionId: r.session_id,
+      turnId: r.turn_id,
+      requestId: r.request_id,
+      status: r.status,
+      result: safeJsonParse(r.result_json),
+      error: safeJsonParse(r.error_json),
       createdAt: r.created_at,
     }));
   }

@@ -1,4 +1,4 @@
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function getSchemaSql() {
   return `
@@ -96,6 +96,43 @@ CREATE TABLE IF NOT EXISTS liqi_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_liqi_events_session_time ON liqi_events(session_id, captured_at);
+
+CREATE TABLE IF NOT EXISTS decision_frames (
+  frame_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  turn_id TEXT NOT NULL,
+  operation_type TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_decision_frames_session_time ON decision_frames(session_id, created_at);
+
+CREATE TABLE IF NOT EXISTS advice_requests (
+  request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  turn_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  model TEXT NOT NULL,
+  request_payload_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_advice_requests_session_time ON advice_requests(session_id, created_at);
+
+CREATE TABLE IF NOT EXISTS advice_results (
+  result_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+  turn_id TEXT NOT NULL,
+  request_id INTEGER REFERENCES advice_requests(request_id) ON DELETE SET NULL,
+  status TEXT NOT NULL,
+  result_json TEXT,
+  error_json TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_advice_results_session_time ON advice_results(session_id, created_at);
 `.trim();
 }
 
