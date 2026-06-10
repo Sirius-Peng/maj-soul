@@ -26,6 +26,11 @@ function computeMeanLuma(bitmap, width, height, rect) {
   return sum / count;
 }
 
+function normalizeThreshold(rawValue, fallback) {
+  const threshold = Number(rawValue ?? fallback);
+  return Number.isFinite(threshold) ? threshold : fallback;
+}
+
 function inferInMatchFromFrame({ bitmap, width, height }) {
   if (!bitmap || width <= 0 || height <= 0) return undefined;
 
@@ -36,7 +41,7 @@ function inferInMatchFromFrame({ bitmap, width, height }) {
     height: Math.max(20, Math.floor(height * 0.06)),
   });
 
-  const threshold = Number(process.env.MAJSOUL_INMATCH_TOPBAR_LUMA_THRESHOLD ?? 105);
+  const threshold = normalizeThreshold(process.env.MAJSOUL_INMATCH_TOPBAR_LUMA_THRESHOLD, 105);
   return topBar < threshold;
 }
 
@@ -50,7 +55,7 @@ function inferPlayerCountFromFrame({ bitmap, width, height }) {
     height: Math.floor(height * 0.22),
   });
 
-  const threshold = Number(process.env.MAJSOUL_4P_RIGHTMID_LUMA_THRESHOLD ?? 120);
+  const threshold = normalizeThreshold(process.env.MAJSOUL_4P_RIGHTMID_LUMA_THRESHOLD, 120);
   return rightMid < threshold ? 4 : 3;
 }
 
@@ -58,4 +63,3 @@ module.exports = {
   inferInMatchFromFrame,
   inferPlayerCountFromFrame,
 };
-

@@ -48,7 +48,10 @@ class CdpWebSocketTap {
         payloadBase64,
       });
 
-      const liqi = this.parser.parseFrame(payloadBuf);
+      let liqi = null;
+      try {
+        liqi = this.parser.parseFrame(payloadBuf);
+      } catch {}
       if (!liqi) return;
       this.db.insertLiqiEvent({
         sessionId: this.sessionId,

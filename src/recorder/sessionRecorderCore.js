@@ -205,9 +205,11 @@ async function createSessionRecorderCore({
       }
 
       const decision =
-        prevKeyframeBitmap === null
-          ? { isKeyframe: true, score: keyframeThreshold }
-          : keyframeDecider({ prevBitmap: prevKeyframeBitmap, nextBitmap: bitmap, threshold: keyframeThreshold });
+        bitmap === null
+          ? { isKeyframe: false, score: null }
+          : prevKeyframeBitmap === null
+            ? { isKeyframe: true, score: keyframeThreshold }
+            : keyframeDecider({ prevBitmap: prevKeyframeBitmap, nextBitmap: bitmap, threshold: keyframeThreshold });
 
       if (decision?.isKeyframe && png) {
         const thisKeyframeIndex = keyframeIndex;

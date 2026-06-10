@@ -87,3 +87,61 @@ test('SessionRecorderCore: end-to-end writes session dir, SQLite rows, and expor
     await core.stop();
   }
 });
+
+test('SessionRecorderCore: missing bitmap after first keyframe does not record recorder error', async () => {
+  const baseDir = await fs.mkdtemp(path.join(os.tmpdir(), 'majsoul-recorder-null-bitmap-'));
+  let clock = Date.parse('2026-06-10T01:02:03.004Z');
+  const now = () => new Date((clock += 1));
+
+  const probeSeq = [
+    { inMatch: false, playerCount: 4 },
+    { inMatch: true, playerCount: 4 },
+    { inMatch: true, playerCount: 4 },
+    { inMatch: true, playerCount: 4 },
+    { inMatch: false, playerCount: 4 },
+  ];
+
+  const captures = [
+    { width: 2, height: 2, bitmap: Buffer.alloc(2 * 2 * 4), png: Buffer.from([0x89, 0x50, 0x4e, 0x47]) },
+    { width: 2, height: 2, bitmap: Buffer.alloc(2 * 2 * 4), png: Buffer.from([0x89, 0x50, 0x4e, 0x47]) },
+    { width: 2, height: 2, bitmap: null, png: null },
+    { width: 2, height: 2, bitmap: Buffer.alloc(2 * 2 * 4), png: Buffer.from([0x89, 0x50, 0x4e, 0x47]) },
+    { width: 2, height: 2, bitmap: Buffer.alloc(2 * 2 * 4), png: Buffer.from([0x89, 0x50, 0x4e, 0x47]) },
+  ];
+
+  const core = await createSessionRecorderCore({
+    baseDir,
+    majsoulUrl: 'https://example.invalid/',
+    platformTag: 'mac',
+    window: { width: 1280, height: 720 },
+    captureAllFrames: false,
+    shouldExportCsv: false,
+    deps: {
+      now,
+      capture: async () => captures.shift(),
+      probe: async () => probeSeq.shift() ?? { inMatch: false, playerCount: 4 },
+      recognizeFrame: () => ({}),
+    },
+  });
+
+  try {
+    await core.tick();
+    await core.tick();
+    await core.tick();
+    await core.tick();
+    await core.tick();
+
+    const sessionsRoot = path.join(baseDir, 'sessions');
+    const entries = await fs.readdir(sessionsRoot, { withFileTypes: true });
+    const sessionId = entries.find((entry) => entry.isDirectory()).name;
+    const db = new MajsoulDb(path.join(baseDir, 'majsoul.sqlite'));
+    try {
+      const errors = db.getErrors(sessionId);
+      assert.equal(errors.length, 0);
+    } finally {
+      db.close();
+    }
+  } finally {
+    await core.stop();
+  }
+});

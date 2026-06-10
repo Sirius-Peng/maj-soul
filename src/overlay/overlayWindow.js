@@ -16,6 +16,7 @@ function getOverlayWindowOptions(preloadPath) {
       preload: preloadPath,
       contextIsolation: true,
       sandbox: true,
+      nodeIntegration: false,
     },
   };
 }
