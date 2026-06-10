@@ -12,7 +12,8 @@
     "test:ci": "node --test"
   },
   "dependencies": {
-    "electron": "^36.0.0"
+    "electron": "^36.0.0",
+    "protobufjs": "^7.4.0"
   },
   "devDependencies": {
     "pngjs": "^7.0.0"
