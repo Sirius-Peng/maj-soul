@@ -1,0 +1,34 @@
+# 开发与分析日志
+
+## 2026-06-10
+- 初始化 Git 并完成初始提交（chore: initial commit）
+- 拉取外部参考仓库：latorc/MahjongCopilot（用于分析其“对局事实数据”获取逻辑）
+- 完成 MahjongCopilot “事实数据获取”链路梳理（MITM WebSocket → liqi protobuf → ActionPrototype 事件回放）
+- 新增 WebSocket 帧与 liqi 事件表（ws_frames/liqi_events），并接入 protobufjs 版 liqi 解析
+- 新增 CDP WebSocket Tap：在 Electron 内捕获雀魂 WS 帧、落库并解析 ActionPrototype 事件流（session 生命周期绑定）
+- 增强 smoke：在离屏加载雀魂时捕获 WS 帧并输出 liqi_events 片段与数量
+- 新增 DeepSeek 建议链路基础设施：长期 prompt、API 客户端、操作机会识别器、Advice Coordinator
+- 新增透明悬浮窗：显示实时建议、备选方案与相对概率
+- 新增建议持久化对象（decision_frames / advice_requests / advice_results）并接入 `session.json` 导出
+- 修正开发脚本：移除已废弃的 `install:resources` 步骤，保证 `scripts/dev.sh` / `scripts/dev.ps1` 可直接启动
+- 续接验证：执行 `npm install`，确认依赖与 Electron/SQLite 运行环境可用
+- 续接验证：执行 `npm test`（32/32 通过）与 `npm run smoke`（退出码 0）
+- 续接验证：执行 `npm run dev` 启动级检查，确认主窗口与实时建议链路初始化后进程保持运行
+- 依赖审计：`npm audit --omit=dev` 提示当前 `electron@^36` 存在 1 个高危上游漏洞，修复需升级到 `electron@42` 并单独做兼容验证
+- 收束 `src/config.js` 的启动配置模型：统一雀魂地址与 DeepSeek 建议参数，新增默认值/字段校验、版本化持久化文档、环境变量覆盖持久化配置的运行时快照，并以 TDD 补齐 `test/config.test.js`
+- 以 TDD 实现启动器控制面板与生命周期控制器：新增 `src/launcher/` 窗口层（window/preload/html/css/js）、可测试的 `launcherController`、建议降级 helper，并把应用默认入口改为先展示启动器
+- 生命周期稳定性修复：重复点击启动时复用同一活动会话，主窗口关闭或“停止当前会话”后清空失效引用并允许重新启动，录制器/悬浮窗/建议协调器与主窗口按同一配置快照统一创建和销毁
+- 建议降级体验修复：当建议功能启用但缺少 API key 时，主窗口仍可正常启动，建议链路不再反复抛错，启动器展示“建议功能未完整配置，已降级为不启用建议”
+- 验证：先执行定向 TDD 测试 `npm test -- test/adviceRuntime.test.js test/launcherController.test.js test/config.test.js test/overlayWindow.test.js`（18/18 通过），再执行 `npm test`（47/47 通过）
+- Task 4 收尾：补充 `test/launcherWindow.test.js` 与 `test/launcherSmoke.test.js`，把启动器窗口选项/ready-to-show/sendState 行为和“启动器渲染层触发 startSession”链路纳入自动化覆盖
+- 启动级验证更新：修复失效的 `scripts/smoke.js`，新增 `npm run smoke:launcher` 走真实 `electron .` 入口，并输出 `artifacts/smoke/launcher-start.json` 验证“启动器 -> 启动雀魂”路径
+- Task 4 文档同步：更新 README，明确图形化启动器的默认入口、配置持久化与环境变量覆盖优先级、以及新的启动级验证命令
+- Task 4 验证：执行 `npm test -- test/config.test.js test/launcherController.test.js test/launcherWindow.test.js test/launcherSmoke.test.js`（18/18 通过）、`npm run smoke:launcher`（退出码 0，`launcher-start.json` 显示 `phase=running`）、`npm test`（51/51 通过）
+- 工程治理强化：补充 `package.json` 仓库元数据与 `check/ci:check` 脚本，新增 `.editorconfig` 与最小 GitHub Actions CI 工作流
+- README 重写：把文档从开发者说明扩展为面向公开仓库读者的正式项目文档，补齐项目定位、架构、命令、FAQ、边界与路线图
+- 工程验证：执行 `npm run check` 与 `npm run smoke:launcher` 均通过
+- Copilot 调用阻塞：尝试通过 `gh copilot` 执行 review，但当前环境在下载 Copilot CLI 校验文件时发生网络超时，尚未获得 review 结果
+- PR/Copilot review 修复：根据 PR #1 中 Copilot 的 review 意见修正模板 alpha=0 被强制改写的问题、非法 MAD 阈值未回退默认值的问题、识别 helper 返回形状不一致的问题
+- PR/Copilot review 修复：把启动器窗口与悬浮窗的 Electron `sandbox` 改为 `true`，与主窗口安全默认值保持一致
+- PR/Copilot review 修复：为 Advice Coordinator 增加运行时 `setDb()` 接口，并在 `sessionRecorder` 中把 `core.db` 挂接给建议链路，确保真实运行时会持久化 `advice_requests/advice_results`
+- PR/Copilot review 验证：执行定向测试 `node --test test/templateBank.test.js test/visionRecognizeFrame.test.js test/launcherWindow.test.js test/overlayWindow.test.js test/adviceCoordinator.test.js test/sessionRecorderAdvice.test.js`（12/12 通过）、`npm test`（56/56 通过）和 `npm run smoke:launcher`（退出码 0）

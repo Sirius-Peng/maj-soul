@@ -1,0 +1,50 @@
+{
+  "id": "solid-full",
+  "frame": {
+    "width": 64,
+    "height": 32,
+    "fill": [0, 0, 0, 255],
+    "rects": [
+      { "rect": { "x": 0, "y": 0, "width": 16, "height": 8 }, "rgba": [200, 0, 0, 255] },
+      { "rect": { "x": 16, "y": 0, "width": 16, "height": 8 }, "rgba": [0, 200, 0, 255] },
+      { "rect": { "x": 0, "y": 8, "width": 16, "height": 8 }, "rgba": [0, 200, 0, 255] },
+      { "rect": { "x": 16, "y": 8, "width": 16, "height": 8 }, "rgba": [50, 50, 50, 255] },
+      { "rect": { "x": 0, "y": 16, "width": 16, "height": 8 }, "rgba": [200, 0, 0, 255] },
+      { "rect": { "x": 16, "y": 16, "width": 16, "height": 8 }, "rgba": [0, 200, 0, 255] },
+      { "rect": { "x": 32, "y": 16, "width": 16, "height": 8 }, "rgba": [50, 50, 50, 255] },
+      { "rect": { "x": 48, "y": 8, "width": 8, "height": 8 }, "rgba": [0, 0, 200, 255] },
+      { "rect": { "x": 56, "y": 8, "width": 8, "height": 8 }, "rgba": [200, 200, 0, 255] }
+    ]
+  },
+  "layout": {
+    "baseWidth": 64,
+    "baseHeight": 32,
+    "hand": { "x": 0, "y": 0, "width": 64, "height": 8, "slots": 4 },
+    "dora": { "x": 0, "y": 8, "width": 32, "height": 8, "slots": 2 },
+    "rivers": {
+      "bottom": { "x": 0, "y": 16, "width": 32, "height": 16, "cols": 2, "rows": 2 },
+      "right": { "x": 32, "y": 16, "width": 32, "height": 16, "cols": 2, "rows": 2 },
+      "top": { "x": 0, "y": 16, "width": 0, "height": 0, "cols": 0, "rows": 0 },
+      "left": { "x": 0, "y": 16, "width": 0, "height": 0, "cols": 0, "rows": 0 }
+    },
+    "wallCount": { "x": 48, "y": 8, "width": 16, "height": 8, "digits": 2 }
+  },
+  "bank": {
+    "tiles": [
+      { "id": "A", "rgba": [200, 0, 0, 255] },
+      { "id": "B", "rgba": [0, 200, 0, 255] }
+    ],
+    "digits": [
+      { "id": "1", "rgba": [0, 0, 200, 255] },
+      { "id": "2", "rgba": [200, 200, 0, 255] }
+    ]
+  },
+  "expected": {
+    "handTiles": ["A", "B"],
+    "doraIndicators": ["B", "unknown"],
+    "rivers": { "bottom": ["A", "B"], "right": ["unknown"] },
+    "remainingWallCount": 12,
+    "remainingWallCountReason": null
+  }
+}
+

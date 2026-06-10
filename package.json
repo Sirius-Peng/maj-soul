@@ -1,0 +1,36 @@
+{
+  "name": "maj-soul-review-assistant",
+  "private": true,
+  "version": "0.1.0",
+  "description": "雀魂桌面辅助工具，提供图形化启动器、事实采集、建议悬浮窗与会话导出。",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "bench": "node scripts/bench.js",
+    "smoke": "electron scripts/smoke-electron.js",
+    "smoke:launcher": "node scripts/smoke.js",
+    "test": "node --test",
+    "test:ci": "node --test",
+    "check": "npm test",
+    "ci:check": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sirius-Peng/maj-soul.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sirius-Peng/maj-soul/issues"
+  },
+  "homepage": "https://github.com/Sirius-Peng/maj-soul",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "electron": "^36.0.0",
+    "protobufjs": "^7.4.0"
+  },
+  "devDependencies": {
+    "pngjs": "^7.0.0"
+  }
+}

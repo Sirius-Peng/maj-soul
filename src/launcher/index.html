@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>雀魂启动器</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">Launcher Control Panel</p>
+        <h1>雀魂启动器</h1>
+        <p class="hero__copy">保存配置、启动会话、停止当前运行，并在同一窗口里观察降级提示与运行状态。</p>
+      </header>
+
+      <section class="panel panel--status">
+        <div>
+          <p class="panel__label">运行状态</p>
+          <strong id="status-phase">空闲</strong>
+        </div>
+        <span id="status-badge" class="badge">Idle</span>
+      </section>
+
+      <section id="notice" class="notice" hidden></section>
+
+      <form id="launcher-form" class="form">
+        <section class="panel">
+          <p class="panel__label">基础</p>
+          <label class="field">
+            <span>雀魂地址</span>
+            <input id="majsoulUrl" name="majsoulUrl" type="url" autocomplete="off" />
+          </label>
+        </section>
+
+        <section class="panel">
+          <div class="panel__row">
+            <p class="panel__label">建议能力</p>
+            <label class="toggle">
+              <input id="adviceEnabled" name="adviceEnabled" type="checkbox" />
+              <span>启用建议</span>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>API Key</span>
+            <input id="apiKey" name="apiKey" type="password" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Base URL</span>
+            <input id="baseUrl" name="baseUrl" type="url" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Model</span>
+            <input id="model" name="model" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Timeout (ms)</span>
+            <input id="timeoutMs" name="timeoutMs" type="number" min="1" step="1" />
+          </label>
+          <label class="field">
+            <span>Strategy</span>
+            <input id="strategy" name="strategy" type="text" autocomplete="off" />
+          </label>
+        </section>
+
+        <div class="actions">
+          <button id="save-button" type="submit" class="button button--secondary">保存配置</button>
+          <button id="start-button" type="button" class="button button--primary">启动雀魂</button>
+          <button id="stop-button" type="button" class="button button--ghost">停止当前会话</button>
+        </div>
+      </form>
+    </main>
+    <script src="./index.js"></script>
+  </body>
+</html>
