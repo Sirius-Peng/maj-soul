@@ -216,6 +216,20 @@ npm -v
 - `Electron failed to install correctly`
   - 处理：删除 `node_modules` 后重新 `npm install`
 
+## 下载与安装
+
+预发布安装包会发布在 GitHub Releases 页面：
+
+- macOS：`dmg` 与 `zip`
+- Windows：`exe` 安装包与 `zip`
+
+注意：
+
+- 当前版本为未签名预发布
+- macOS 首次运行可能需要在“系统设置 -> 隐私与安全性”中手动放行
+- Windows 首次运行可能出现 SmartScreen 或未知发布者提示
+- Releases 页面：`https://github.com/Sirius-Peng/maj-soul/releases`
+
 ## 常见问题
 
 ### 为什么不是只做视觉识别？
@@ -234,11 +248,12 @@ npm -v
 
 - 当前 Electron 依赖仍处于较旧版本，后续建议单独做一轮升级与兼容验证
 - DeepSeek 建议功能仍处于可用但偏早期阶段，未完成全量策略优化
-- 项目目前更适合作为内部工具/研发原型，还未完成安装包、自动更新、隐私条款和正式发布流程
+- 当前发布链路为未签名预发布，尚未接入 Apple notarization、Windows 代码签名和自动更新
+- 项目目前更适合作为内部工具/研发原型，尚未补齐隐私条款、正式签名与商店级发布流程
 
 ## 路线图
 
 - 扩大图形化配置面板可调参数范围
 - 增强对 `liqi` 操作语义的覆盖率
 - 加入更完整的错误日志与诊断能力
-- 补齐发布流程、版本策略和 CI/CD
+- 强化发布流程，包括正式签名、notarization 和自动更新

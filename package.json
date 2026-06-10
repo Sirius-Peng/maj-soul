@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "雀魂桌面辅助工具，提供图形化启动器、事实采集、建议悬浮窗与会话导出。",
+  "author": "Sirius-Peng",
   "main": "src/main.js",
   "scripts": {
     "dev": "electron .",
