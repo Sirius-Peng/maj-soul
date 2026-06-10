@@ -65,6 +65,31 @@ test('SQLite: exportSessionJson/exportKeyframesCsv: roundtrip basic fields', asy
       actionName: 'ActionMJStart',
       data: { ok: true },
     });
+    db.insertDecisionFrame({
+      sessionId: meta.sessionId,
+      turnId: 'turn-1',
+      operationType: 'discard',
+      payload: {
+        legalActions: [{ type: 'discard', value: '7p' }],
+      },
+    });
+    const requestId = db.insertAdviceRequest({
+      sessionId: meta.sessionId,
+      turnId: 'turn-1',
+      provider: 'deepseek',
+      model: 'deepseek-v4flash',
+      requestPayload: { turnId: 'turn-1' },
+    });
+    db.insertAdviceResult({
+      sessionId: meta.sessionId,
+      turnId: 'turn-1',
+      requestId,
+      status: 'ok',
+      result: {
+        recommendedAction: { label: '打 7p', probability: 0.5 },
+        alternatives: [],
+      },
+    });
 
     const sessionJsonPath = path.join(sessionDir, 'session.json');
     await exportSessionJson({ db, sessionId: meta.sessionId, outPath: sessionJsonPath });
@@ -75,6 +100,8 @@ test('SQLite: exportSessionJson/exportKeyframesCsv: roundtrip basic fields', asy
     assert.equal(doc.keyframes.length, 1);
     assert.equal(doc.errors.length, 1);
     assert.equal(doc.events.length, 1);
+    assert.equal(doc.decisionFrames.length, 1);
+    assert.equal(doc.adviceResults.length, 1);
     assert.equal(doc.keyframes[0].fileRelpath, rel);
 
     const csv = exportKeyframesCsvString({ db, sessionId: meta.sessionId });

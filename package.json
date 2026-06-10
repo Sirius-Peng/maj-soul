@@ -8,6 +8,7 @@
     "start": "electron .",
     "bench": "node scripts/bench.js",
     "smoke": "electron scripts/smoke-electron.js",
+    "smoke:launcher": "node scripts/smoke.js",
     "test": "node --test",
     "test:ci": "node --test"
   },

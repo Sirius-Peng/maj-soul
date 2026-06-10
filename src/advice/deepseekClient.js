@@ -41,6 +41,7 @@ function createAdviceClient({
       throw new Error('DEEPSEEK_API_KEY is not configured');
     }
 
+    const startedAt = Date.now();
     const response = await withTimeout(
       fetchImpl(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
@@ -70,7 +71,9 @@ function createAdviceClient({
       throw new Error('deepseek response is not valid JSON');
     }
 
-    return normalizeAdvicePayload(parsed, frame.turnId);
+    const result = normalizeAdvicePayload(parsed, frame.turnId);
+    result.latencyMs = Date.now() - startedAt;
+    return result;
   }
 
   return {
@@ -81,4 +84,3 @@ function createAdviceClient({
 module.exports = {
   createAdviceClient,
 };
-

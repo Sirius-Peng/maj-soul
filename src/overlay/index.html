@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>实时建议</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header class="card__header">
+        <div>
+          <p class="eyebrow">实时建议</p>
+          <h1 id="title">等待对局操作</h1>
+        </div>
+        <span id="status-badge" class="badge badge--loading">分析中</span>
+      </header>
+
+      <section class="hero">
+        <p class="hero__label">主建议</p>
+        <div class="hero__row">
+          <strong id="primary-label">等待数据</strong>
+          <span id="primary-probability">--</span>
+        </div>
+        <p id="primary-reason" class="hero__reason">系统正在等待可操作回合。</p>
+        <p id="primary-risk" class="hero__risk"></p>
+      </section>
+
+      <section>
+        <p class="section-title">备选方案</p>
+        <ul id="alternatives" class="alternatives"></ul>
+      </section>
+
+      <footer id="meta" class="meta">balanced · 数据完整度未知 · -- ms</footer>
+    </main>
+    <script src="./index.js"></script>
+  </body>
+</html>
+

@@ -6,6 +6,7 @@ const { createSessionRecorderCore } = require('./sessionRecorderCore');
 const { getDefaultLayout } = require('../vision/defaultLayout');
 const { loadTemplateBankFromDir } = require('../vision/templateBank');
 const { CdpWebSocketTap } = require('../net/cdpWebSocketTap');
+const { createOpportunityDetector } = require('../advice/opportunityDetector');
 
 function getCaptureIntervalMs() {
   const n = Number(process.env.MAJSOUL_CAPTURE_INTERVAL_MS ?? 800);
@@ -29,9 +30,10 @@ function getSessionsBaseDir({ userDataDir }) {
   return path.join(userDataDir, 'data');
 }
 
-async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
+async function startSessionRecorder({ win, userDataDir, majsoulUrl, configSnapshot = null, adviceServices = null }) {
   const webContents = win.webContents;
   let busy = false;
+  const runtimeConfig = configSnapshot ?? { majsoulUrl };
 
   const intervalMs = getCaptureIntervalMs();
   const threshold = getKeyframeThreshold();
@@ -43,11 +45,12 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
   const templatesDir = String(process.env.MAJSOUL_TEMPLATES_DIR ?? '').trim();
   const templateBank = await loadTemplateBankFromDir(templatesDir);
   const platformTag = getPlatformTag(process.platform);
+  const opportunityDetector = adviceServices ? createOpportunityDetector({ seat: 0 }) : null;
 
   let tap = null;
   const core = await createSessionRecorderCore({
     baseDir,
-    majsoulUrl,
+    majsoulUrl: runtimeConfig.majsoulUrl,
     platformTag,
     window: () => {
       const bounds = win.getBounds();
@@ -80,7 +83,24 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
     },
   });
 
-  tap = new CdpWebSocketTap({ webContents, db: core.db });
+  tap = new CdpWebSocketTap({
+    webContents,
+    db: core.db,
+    onLiqiEvent: async (event) => {
+      if (!adviceServices || !opportunityDetector) return;
+      const frame = opportunityDetector.consumeEvent(event);
+      if (!frame) return;
+
+      core.db.insertDecisionFrame({
+        sessionId: frame.sessionId,
+        turnId: frame.turnId,
+        operationType: frame.operationType,
+        payload: frame,
+      });
+
+      await adviceServices.coordinator.handleDecisionFrame(frame);
+    },
+  });
   try {
     await tap.start();
   } catch {

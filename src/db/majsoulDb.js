@@ -163,6 +163,9 @@ INSERT INTO advice_results(
     this.stmtSelectAdviceResults = this.db.prepare(
       'SELECT * FROM advice_results WHERE session_id = $session_id ORDER BY created_at ASC, result_id ASC',
     );
+    this.stmtSelectDecisionFrames = this.db.prepare(
+      'SELECT * FROM decision_frames WHERE session_id = $session_id ORDER BY created_at ASC, frame_id ASC',
+    );
   }
 
   upsertSession(meta) {
@@ -428,6 +431,18 @@ INSERT INTO advice_results(
       status: r.status,
       result: safeJsonParse(r.result_json),
       error: safeJsonParse(r.error_json),
+      createdAt: r.created_at,
+    }));
+  }
+
+  getDecisionFrames(sessionId) {
+    const rows = this.stmtSelectDecisionFrames.all({ session_id: sessionId });
+    return rows.map((r) => ({
+      frameId: r.frame_id,
+      sessionId: r.session_id,
+      turnId: r.turn_id,
+      operationType: r.operation_type,
+      payload: safeJsonParse(r.payload_json),
       createdAt: r.created_at,
     }));
   }

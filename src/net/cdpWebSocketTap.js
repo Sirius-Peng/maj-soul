@@ -5,9 +5,10 @@ function nowIso() {
 }
 
 class CdpWebSocketTap {
-  constructor({ webContents, db }) {
+  constructor({ webContents, db, onLiqiEvent = null }) {
     this.webContents = webContents;
     this.db = db;
+    this.onLiqiEvent = onLiqiEvent;
     this.sessionId = null;
     this.parser = null;
     this.attached = false;
@@ -59,6 +60,17 @@ class CdpWebSocketTap {
         actionName: liqi.actionName ?? null,
         data: liqi.data ?? null,
       });
+
+      if (typeof this.onLiqiEvent === 'function') {
+        try {
+          await this.onLiqiEvent({
+            sessionId: this.sessionId,
+            frameId,
+            capturedAt,
+            ...liqi,
+          });
+        } catch {}
+      }
     };
     this.webContents.debugger.on('message', this.boundOnMessage);
     this.attached = true;
@@ -79,4 +91,3 @@ class CdpWebSocketTap {
 module.exports = {
   CdpWebSocketTap,
 };
-

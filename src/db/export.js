@@ -9,7 +9,7 @@ function getExportEventsMax() {
   return Math.floor(n);
 }
 
-function buildSessionDocument({ session, games, keyframes, errors, events }) {
+function buildSessionDocument({ session, games, keyframes, errors, events, decisionFrames, adviceResults }) {
   const meta = session ?? null;
   const maxEvents = getExportEventsMax();
   const exportedEvents = Array.isArray(events)
@@ -25,11 +25,15 @@ function buildSessionDocument({ session, games, keyframes, errors, events }) {
     keyframes: keyframes ?? [],
     errors: errors ?? [],
     events: exportedEvents,
+    decisionFrames: decisionFrames ?? [],
+    adviceResults: adviceResults ?? [],
     stats: {
       gameCount: Array.isArray(games) ? games.length : 0,
       keyframeCount: Array.isArray(keyframes) ? keyframes.length : 0,
       errorCount: Array.isArray(errors) ? errors.length : 0,
       eventCount: exportedEvents.length,
+      decisionFrameCount: Array.isArray(decisionFrames) ? decisionFrames.length : 0,
+      adviceResultCount: Array.isArray(adviceResults) ? adviceResults.length : 0,
     },
   };
 }
@@ -45,6 +49,8 @@ async function exportSessionJson({ db, sessionId, outPath }) {
   const keyframes = db.getKeyframes(sessionId);
   const errors = db.getErrors(sessionId);
   const events = db.getLiqiEvents(sessionId);
+  const decisionFrames = db.getDecisionFrames(sessionId);
+  const adviceResults = db.getAdviceResults(sessionId);
 
   const doc = buildSessionDocument({
     session,
@@ -52,6 +58,8 @@ async function exportSessionJson({ db, sessionId, outPath }) {
     keyframes,
     errors,
     events,
+    decisionFrames,
+    adviceResults,
   });
 
   await writeJsonPretty(outPath, doc);

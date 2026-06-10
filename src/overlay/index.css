@@ -1,0 +1,150 @@
+:root {
+  color-scheme: dark;
+  --bg: rgba(10, 14, 20, 0.78);
+  --bg-strong: rgba(14, 20, 28, 0.92);
+  --border: rgba(164, 190, 255, 0.22);
+  --text: #f4f7fb;
+  --muted: #9eafc8;
+  --accent: #84b7ff;
+  --accent-strong: #c8ddff;
+  --danger: #ff8b8b;
+  --success: #7ee0b0;
+  --warning: #ffd580;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Hiragino Sans GB", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: transparent;
+  color: var(--text);
+}
+
+.card {
+  width: 100%;
+  min-height: 100vh;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background:
+    linear-gradient(160deg, rgba(132, 183, 255, 0.13), transparent 35%),
+    linear-gradient(180deg, var(--bg), var(--bg-strong));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.card__header,
+.hero__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow,
+.section-title,
+.hero__label {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 8px 0 0;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge--loading {
+  background: rgba(132, 183, 255, 0.18);
+  color: var(--accent-strong);
+}
+
+.badge--ready {
+  background: rgba(126, 224, 176, 0.18);
+  color: var(--success);
+}
+
+.badge--error {
+  background: rgba(255, 139, 139, 0.18);
+  color: var(--danger);
+}
+
+.hero {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero__row strong {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.hero__row span {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.hero__reason,
+.hero__risk {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero__risk {
+  color: var(--warning);
+}
+
+.alternatives {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.alternatives li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.alt__label {
+  font-size: 14px;
+}
+
+.alt__probability {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.meta {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
