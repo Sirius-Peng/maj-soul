@@ -66,6 +66,8 @@ test('SessionRecorderCore: end-to-end writes session dir, SQLite rows, and expor
       assert.ok(session.endedAt);
       const keyframes = db.getKeyframes(sessionId);
       assert.ok(keyframes.length >= 1);
+      const events = db.getLiqiEvents(sessionId);
+      assert.ok(Array.isArray(events));
     } finally {
       db.close();
     }
@@ -84,4 +86,3 @@ test('SessionRecorderCore: end-to-end writes session dir, SQLite rows, and expor
     await core.stop();
   }
 });
-

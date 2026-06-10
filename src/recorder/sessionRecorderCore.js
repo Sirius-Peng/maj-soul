@@ -73,6 +73,7 @@ async function createSessionRecorderCore({
   async function finalizeCurrent() {
     if (!current) return;
 
+    const endingSessionId = current.meta.sessionId;
     current.meta.endedAt = now().toISOString();
     await writeSessionMetadata(current.layout.metaPath, current.meta);
     db.upsertSession(current.meta);
@@ -104,9 +105,13 @@ async function createSessionRecorderCore({
     if (shouldExportCsv) {
       await exportKeyframesCsv({
         db,
-        sessionId: current.meta.sessionId,
+        sessionId: endingSessionId,
         outPath: path.join(current.layout.sessionDir, 'keyframes.csv'),
       });
+    }
+
+    if (typeof deps?.onSessionEnded === 'function') {
+      await deps.onSessionEnded({ sessionId: endingSessionId });
     }
 
     current = null;
@@ -169,6 +174,10 @@ async function createSessionRecorderCore({
 
           await writeSessionMetadata(layout.metaPath, current.meta);
           db.upsertSession(current.meta);
+
+          if (typeof deps?.onSessionStarted === 'function') {
+            await deps.onSessionStarted({ sessionId });
+          }
         }
 
         if (e.type === 'match_ended') {
@@ -278,6 +287,7 @@ async function createSessionRecorderCore({
   return {
     tick,
     stop,
+    db,
   };
 }
 

@@ -5,6 +5,7 @@ const { getPlatformTag } = require('../session/sessionPaths');
 const { createSessionRecorderCore } = require('./sessionRecorderCore');
 const { getDefaultLayout } = require('../vision/defaultLayout');
 const { loadTemplateBankFromDir } = require('../vision/templateBank');
+const { CdpWebSocketTap } = require('../net/cdpWebSocketTap');
 
 function getCaptureIntervalMs() {
   const n = Number(process.env.MAJSOUL_CAPTURE_INTERVAL_MS ?? 800);
@@ -43,6 +44,7 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
   const templateBank = await loadTemplateBankFromDir(templatesDir);
   const platformTag = getPlatformTag(process.platform);
 
+  let tap = null;
   const core = await createSessionRecorderCore({
     baseDir,
     majsoulUrl,
@@ -69,8 +71,21 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
         };
       },
       probe: async () => probeMajsoulState(webContents),
+      onSessionStarted: async ({ sessionId }) => {
+        if (tap) tap.setSessionId(sessionId);
+      },
+      onSessionEnded: async () => {
+        if (tap) tap.setSessionId(null);
+      },
     },
   });
+
+  tap = new CdpWebSocketTap({ webContents, db: core.db });
+  try {
+    await tap.start();
+  } catch {
+    tap = null;
+  }
 
   const timer = setInterval(async () => {
     if (busy) return;
@@ -85,12 +100,14 @@ async function startSessionRecorder({ win, userDataDir, majsoulUrl }) {
 
   win.on('closed', () => {
     clearInterval(timer);
+    if (tap) tap.stop().catch(() => {});
     core.stop().catch(() => {});
   });
 
   return {
     stop: async () => {
       clearInterval(timer);
+      if (tap) await tap.stop();
       await core.stop();
     },
   };
